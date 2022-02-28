@@ -1,10 +1,6 @@
-from enum import Enum
 from math import sqrt, pow, acos
 
-
-class Area(Enum):
-    ABOVE = 0
-    BELOW = 1
+from Area import Area
 
 
 class ConvexHull:
@@ -81,31 +77,31 @@ class ConvexHull:
 
         return aboveAreaDots, belowAreaDots
 
-    def _dnc(self, pi, pn, parts, direction):
+    def _dnc(self, pi, pn, parts, direction: Area):
         if len(parts) == 0:
             self.simplices.append([pi, pn])
         elif len(parts) == 1:
             self.simplices.append([pi, parts[0]])
             self.simplices.append([parts[0], pn])
         else:
-            farthestPointIndex = parts[0]
+            pmax = parts[0]
             maxDistance = self._distance(pi, pn, parts[0])
 
             for i in range(1, len(parts)):
                 currentDistance = self._distance(pi, pn, parts[i])
                 if currentDistance > maxDistance:
                     maxDistance = currentDistance
-                    farthestPointIndex = parts[i]
+                    pmax = parts[i]
                 elif currentDistance == maxDistance:
-                    if self._angle(pi, pn, parts[i]) > self._angle(pi, pn, farthestPointIndex):
-                        farthestPointIndex = parts[i]
+                    if self._angle(pi, pn, parts[i]) > self._angle(pi, pn, pmax):
+                        pmax = parts[i]
 
-            dataparts1 = self._separate(pi, farthestPointIndex, parts)
-            dataparts2 = self._separate(farthestPointIndex, pn, parts)
+            dataparts1 = self._separate(pi, pmax, parts)
+            dataparts2 = self._separate(pmax, pn, parts)
 
-            self._dnc(pi, farthestPointIndex,
+            self._dnc(pi, pmax,
                       dataparts1[direction.value], direction)
-            self._dnc(farthestPointIndex, pn,
+            self._dnc(pmax, pn,
                       dataparts2[direction.value], direction)
 
     def _buildConvexHull(self):
